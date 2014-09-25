@@ -1,5 +1,37 @@
 import Tkinter as tk
 import os
+from tab import *
+
+tablature = {"meter": "4/4",
+             "partial": 0,
+             "strings": ("e,", "a,", "d", "g", "b", "e'"),
+             "title": "An Example",
+             "composer": "Jason R. Fruit",
+             "content":
+             [(Durations.quarter, [("0", 0),
+                                   ("1", 1),
+                                   ("0", 2),
+                                   ("3", 4)]),
+              (Durations.quarter, [("0", 0),
+                                   ("1", 1),
+                                   ("0", 2),
+                                   ("3", 4)]),
+              (Durations.half, [("1", 0),
+                                ("1", 1),
+                                ("2", 2),
+                                ("3", 3)]),
+              (Durations.quarter, [("0", 0),
+                                   ("1", 1),
+                                   ("0", 2),
+                                   ("3", 4)]),
+              (Durations.quarter, [("0", 0),
+                                   ("1", 1),
+                                   ("0", 2),
+                                   ("3", 4)]),
+              (Durations.half, [("1", 0),
+                                ("1", 1),
+                                ("2", 2),
+                                ("3", 3)])]}
 
 class TabCanvas(tk.Canvas):
     def __init__(self, parent, **kwargs):
@@ -22,49 +54,22 @@ class TabCanvas(tk.Canvas):
 class App(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
+
+        self.drawer = TabDrawer(tablature)
         self.title("The Tabinator")
         self.line_start = None
         self.canvas = TabCanvas(self, width=300, height=300, bg="white")
-        self.canvas.draw_strings()
-        
-        self.canvas.draw_note("0", 0, 20)
-        self.canvas.draw_note("1", 1, 20)
-        self.canvas.draw_note("0", 2, 20)
-        self.canvas.draw_note("3", 4, 20)
 
-        self.canvas.draw_note("0", 0, 45)
-        self.canvas.draw_note("1", 1, 45)
-        self.canvas.draw_note("0", 2, 45)
-        self.canvas.draw_note("3", 4, 45)
-
-        self.canvas.draw_note("1", 0, 70)
-        self.canvas.draw_note("1", 1, 70)
-        self.canvas.draw_note("2", 2, 70)
-        self.canvas.draw_note("3", 3, 70)
-        
-        self.canvas.bind("<Button-1>", lambda e: self.draw(e.x, e.y))
         self.button = tk.Button(self, text="Generate PDF",
                                 command=self.generate_pdf)
         self.button2 = tk.Button(self, text="Add Text",
-                                 command=self.add_text)
+                                 command=self.draw_tab)
         self.canvas.pack()
         self.button.pack(pady=10)
         self.button2.pack(pady=10)
 
-    def draw(self, x, y):
-        if self.line_start:
-            x_origin, y_origin = self.line_start
-            self.canvas.create_line(x_origin, y_origin, x, y)
-            self.line_start = None
-        else:
-            self.line_start = (x, y)
-
-    def add_text(self):
-        self.canvas.create_text(self.line_start,
-                                text="Text",
-                                font=("Helvetica", "24"),
-                                fill="red")
-        self.line_start = None
+    def draw_tab(self):
+        self.drawer.draw(self.canvas)
 
     def generate_pdf(self):
         self.canvas.postscript(file="tmp.ps", colormode='color')

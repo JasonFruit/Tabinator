@@ -1,5 +1,6 @@
 from fractions import Fraction
 from collections import namedtuple
+import math
 
 class Durations(object):
     whole = Fraction(1, 1)
@@ -13,6 +14,8 @@ class Durations(object):
     sixteenth = Fraction(1, 16)
     dot_thirtysecond = Fraction(3, 64)
     thirtysecond = Fraction(1, 32)
+    dot_sixtyfourth = Fraction(3, 128)
+    sixtyfourth = Fraction(1, 64)
 
 meter = namedtuple("meter", "numerator denominator duration")
 
@@ -28,8 +31,33 @@ meters = {"6/4": meter(6, 4, Durations.whole + Durations.half),
 
 class TabDrawer(object):
     def __init__(self, tab):
+
         self.tab = tab
+
         self.measure_duration = meters[tab["meter"]].duration
+        self.min_space = 20
+
+        # start with an irrationally large minimum duration
+        self.min_duration = Durations.whole
+
+        # find the shortest duration in the tab
+        for duration in [note[0] 
+                         for note in self.tab["content"]]:
+            if duration < self.min_duration:
+                self.min_duration = duration
+                
+    def _note_space(self, duration):
+        return (self.min_space * 
+                (math.log(duration / self.min_duration, 2) + 1))
+
+    def draw(self, canvas):
+        x = 20
+        canvas.draw_strings()
+        for note in self.tab["content"]:
+            for glyph in note[1]:
+                symbol, string = glyph
+                canvas.draw_note(symbol, string, x)
+            x += self._note_space(note[0])
 
 if __name__ == "__main__":
 
@@ -63,6 +91,6 @@ if __name__ == "__main__":
                               ("1", 1),
                               ("0", 2),
                               ("3", 4)])]}
+    
     td = TabDrawer(tab)
-    print str(td.measure_duration / Durations.quarter) + " quarter notes per measure"
-    print dir(Durations.quarter)
+    td.draw(None)
