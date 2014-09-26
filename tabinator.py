@@ -36,15 +36,15 @@ tablature = {"meter": "4/4",
 class TabCanvas(tk.Canvas):
     def __init__(self, parent, **kwargs):
         apply(tk.Canvas.__init__, [self, parent], kwargs)
-    def _string_y(self, string):
-        return 20 + string * 18
-    def draw_strings(self, strings=6):
+    def _string_y(self, string, top, spacing):
+        return top + string * spacing
+    def draw_strings(self, top=20, spacing=18, strings=6):
         for string in range(strings):
-            y = self._string_y(string)
+            y = self._string_y(string, top, spacing)
             self.create_line(0, y, self.winfo_screenwidth(), y)
-    def draw_note(self, symbol, string, x_value):
+    def draw_note(self, symbol, string, x_value, top=20, spacing=18):
         x = x_value
-        y = self._string_y(string)
+        y = self._string_y(string, top, spacing)
         self.create_text((x, y),
                          text=symbol,
                          font=("Times New Roman", 12))

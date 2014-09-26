@@ -30,9 +30,12 @@ meters = {"6/4": meter(6, 4, Durations.whole + Durations.half),
           "2/8": meter(2, 8, Durations.quarter)}
 
 class TabDrawer(object):
-    def __init__(self, tab):
+    def __init__(self, tab, top=20, spacing=18):
 
         self.tab = tab
+        self.string_count = len(self.tab["strings"])
+        self.top = top
+        self.spacing = spacing
 
         self.measure_duration = meters[tab["meter"]].duration
         self.min_space = 20
@@ -52,11 +55,14 @@ class TabDrawer(object):
 
     def draw(self, canvas):
         x = 20
-        canvas.draw_strings()
+        canvas.draw_strings(self.top, self.spacing, self.string_count)
+        canvas.draw_strings(self.top + self.spacing * 10, 
+                            self.spacing, 
+                            self.string_count)
         for note in self.tab["content"]:
             for glyph in note[1]:
                 symbol, string = glyph
-                canvas.draw_note(symbol, string, x)
+                canvas.draw_note(symbol, string, x, self.top, self.spacing)
             x += self._note_space(note[0])
 
 if __name__ == "__main__":
